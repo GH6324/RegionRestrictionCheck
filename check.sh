@@ -759,21 +759,21 @@ function MediaUnlockTest_PlutoTV() {
 }
 
 function MediaUnlockTest_HBOMax() {
-    local GetToken=$(curl $curlArgs -${1} -sS "https://default.any-any.prd.api.hbomax.com/token?realm=bolt&deviceId=afbb5daa-c327-461d-9460-d8e4b3ee4a1f"   -H 'x-device-info: beam/5.0.0 (desktop/desktop; Windows/10; afbb5daa-c327-461d-9460-d8e4b3ee4a1f/da0cdd94-5a39-42ef-aa68-54cbc1b852c3)' -H 'x-disco-client: WEB:10:beam:5.2.1' -H 'x-disco-params: realm=bolt,bid=beam,features=ar' 2>&1)
+    local GetToken=$(curl $curlArgs -${1} -sS "https://default.any-any.prd.api.hbomax.com/token?realm=bolt&deviceId=afbb5daa-c327-461d-9460-d8e4b3ee4a1f"   -H 'x-device-info: beam/5.0.0 (desktop/desktop; Windows/10; afbb5daa-c327-461d-9460-d8e4b3ee4a1f/da0cdd94-5a39-42ef-aa68-54cbc1b852c3)' -H 'x-disco-client: WEB:10.15.7:dotcom-hbomax:7.7.0' -H 'x-disco-params: realm=bolt,bid=beam,features=ar' 2>&1)
     if [[ "$GetToken" == "curl"* ]]; then
         echo -n -e "\r HBO Max:\t\t\t\t${Font_Red}Failed (Network Connection)${Font_Suffix}\n"
         return
     fi
     local Token=$(echo $GetToken | jq .data.attributes.token | tr -d '"' )
-    local APITemp=$(curl $curlArgs -${1} -sS "https://default.any-any.prd.api.hbomax.com/session-context/headwaiter/v1/bootstrap" -H 'x-disco-params: realm=bolt,bid=beam,features=ar' -X POST -b "st=${Token}")
+    local APITemp=$(curl $curlArgs -${1} -sS "https://default.any-any.prd.api.hbomax.com/session-context/headwaiter/v1/bootstrap" -H 'x-disco-client: WEB:10.15.7:dotcom-hbomax:7.7.0' -H 'x-disco-params: realm=bolt,bid=beam,features=ar' -X POST -b "st=${Token}")
     local domain=$(echo $APITemp | jq .routing.domain | tr -d '"')
     local tenant=$(echo $APITemp | jq .routing.tenant | tr -d '"')
     local env=$(echo $APITemp | jq .routing.env | tr -d '"')
     local homeMarket=$(echo $APITemp | jq .routing.homeMarket | tr -d '"')
-    local tmpresult=$(curl $curlArgs -${1} -sS "https://default.$tenant-$homeMarket.$env.$domain/users/me" -H 'x-disco-params: realm=bolt,bid=beam,features=ar' -b "st=${Token}" 2>&1)
+    local tmpresult=$(curl $curlArgs -${1} -sS "https://default.$tenant-$homeMarket.$env.$domain/users/me" -H 'x-disco-client: WEB:10.15.7:dotcom-hbomax:7.7.0' -H 'x-disco-params: realm=bolt,bid=beam,features=ar' -b "st=${Token}" 2>&1)
     local result=$(echo $tmpresult | jq .data.attributes.currentLocationTerritory | tr -d '"')
     local availableRegion=$(curl $curlArgs -${1} -sSL "https://www.hbomax.com/" 2>&1 | grep -woP '"url":"/[a-z]{2}/[a-z]{2}"' | cut -f4 -d'"' | cut -f2 -d'/' | sort -n | uniq | xargs | tr a-z A-Z)
-    local isVPN=$(curl $curlArgs -${1} -sS 'https://default.any-any.prd.api.hbomax.com/any/playback/v1/playbackInfo' -b 'st=eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiJ0b2tlbi0wOWQxOTg4Yy1mZmUzLTQxMDEtOWI5My0yNDU1ZTkyNGQ1YjYiLCJpc3MiOiJmcGEtaXNzdWVyIiwic3ViIjoiVVNFUklEOmJvbHQ6YjYzOTgxZWQtNzA2MC00ZGYwLThkZGItZjA2YjFkNWRjZWVkIiwiaWF0IjoxNzQzODQwMzgwLCJleHAiOjIwNTkyMDAzODAsInR5cGUiOiJBQ0NFU1NfVE9LRU4iLCJzdWJkaXZpc2lvbiI6ImJlYW1fYW1lciIsInNjb3BlIjoiZGVmYXVsdCIsImlpZCI6IjQwYTgzZjNlLTY4OTktNDE3Mi1hMWY2LWJjZDVjN2ZkNjA4NSIsInZlcnNpb24iOiJ2MyIsImFub255bW91cyI6ZmFsc2UsImRldmljZUlkIjoiNWY3YzViZjQtYjc4Ny00NDRjLWJhYTYtMzU5MzgwYWFiM2RmIn0.f5HTgIV2v0nQQDp5LQG0xqLrxyACdvnMDiWO_viX_CUGqtc5ncSjp_LgM30QFkkMnINFhzKEGRpsZvb-o3Pj_Z39uRBr5LCeiCPR7ssV-_SXyRFVRRDEB2lpxyz7jmdD1SxvA06HnEwTbZQzlbZ7g9GXq02yNdEfHlqYEh_4WF88UbXfeieYTd4TH7kwN1RE50NfQUS6f0WmzpAbpiULyd87mpTeynchFNMMz-YHVzZ_-nDW6geihXc3tS0FKVSR8fdOSPQFzEYOLCfhInufiPahiXI-OKF89aShAqM-y4Hx_eukGnsq3mO5wa3unnqVr9Kzc61BIhHh1Hs2bqYiYg;' -H 'x-disco-params: realm=bolt,bid=beam,features=ar'  2>&1 )
+    local isVPN=$(curl $curlArgs -${1} -sS 'https://default.any-any.prd.api.hbomax.com/any/playback/v1/playbackInfo'  -b 'st=eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiJ0b2tlbi0wOWQxOTg4Yy1mZmUzLTQxMDEtOWI5My0yNDU1ZTkyNGQ1YjYiLCJpc3MiOiJmcGEtaXNzdWVyIiwic3ViIjoiVVNFUklEOmJvbHQ6YjYzOTgxZWQtNzA2MC00ZGYwLThkZGItZjA2YjFkNWRjZWVkIiwiaWF0IjoxNzQzODQwMzgwLCJleHAiOjIwNTkyMDAzODAsInR5cGUiOiJBQ0NFU1NfVE9LRU4iLCJzdWJkaXZpc2lvbiI6ImJlYW1fYW1lciIsInNjb3BlIjoiZGVmYXVsdCIsImlpZCI6IjQwYTgzZjNlLTY4OTktNDE3Mi1hMWY2LWJjZDVjN2ZkNjA4NSIsInZlcnNpb24iOiJ2MyIsImFub255bW91cyI6ZmFsc2UsImRldmljZUlkIjoiNWY3YzViZjQtYjc4Ny00NDRjLWJhYTYtMzU5MzgwYWFiM2RmIn0.f5HTgIV2v0nQQDp5LQG0xqLrxyACdvnMDiWO_viX_CUGqtc5ncSjp_LgM30QFkkMnINFhzKEGRpsZvb-o3Pj_Z39uRBr5LCeiCPR7ssV-_SXyRFVRRDEB2lpxyz7jmdD1SxvA06HnEwTbZQzlbZ7g9GXq02yNdEfHlqYEh_4WF88UbXfeieYTd4TH7kwN1RE50NfQUS6f0WmzpAbpiULyd87mpTeynchFNMMz-YHVzZ_-nDW6geihXc3tS0FKVSR8fdOSPQFzEYOLCfhInufiPahiXI-OKF89aShAqM-y4Hx_eukGnsq3mO5wa3unnqVr9Kzc61BIhHh1Hs2bqYiYg;' -H 'x-disco-client: WEB:10.15.7:dotcom-hbomax:7.7.0' -H 'x-disco-params: realm=bolt,bid=beam,features=ar'  2>&1 )
     # Token may expire.
     if [[ "$availableRegion" == *"$result"* ]] && [ -n "$result" ]; then
         if [[ "$isVPN" == *"VPN"* ]]; then 
